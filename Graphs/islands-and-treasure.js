@@ -3,37 +3,45 @@ class Solution {
      * @param {number[][]} grid
      */
     islandsAndTreasure(grid) {
-        const m = grid.length;
-        const n = grid[0].length;
+        const M = grid.length;
+        const N = grid[0].length;
 
+        const visited = Array.from({ length: M }, () => Array.from({ length: N }, () => false));
+        const queue = [];
+        let front = 0;
 
-        const bfs = (x, y) => {
-            const queue = [[x - 1, y, 1], [x + 1, y, 1], [x, y - 1, 1], [x, y + 1, 1]];
-            const visited = Array.from({ length: m }, () => Array.from({ length: n }, () => false));
-            while (queue.length) {
-                const [i, j, dist] = queue.shift();
-                if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length) continue;
-                if (grid[i][j] <= 0) continue;
-                if (visited[i][j]) continue;
-
-                visited[i][j] = true;
-                grid[i][j] = Math.min(grid[i][j], dist);
-
-                queue.push(
-                    [i - 1, j, dist + 1],
-                    [i + 1, j, dist + 1],
-                    [i, j - 1, dist + 1],
-                    [i, j + 1, dist + 1],
-                );
+        for (let i = 0; i < M; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grid[i][j] === 0) {
+                    visited[i][j] = true;
+                    queue.push([i, j]);
+                }
             }
         }
 
-        for (let i = 0; i < grid.length; i++) {
-            for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] === 0) {
-                    bfs(i, j);
-                }
+        const push = (i, j) => {
+            if (i < 0 || i >= M || j < 0 || j >= N) return;
+            if (visited[i][j]) return;
+            if (grid[i][j] === -1) return;
+            visited[i][j] = true;
+            queue.push([i, j]);
+        }
+
+        let dist = 0;
+        while (front < queue.length) {
+            const currentLevel = queue.length;
+            while (front < currentLevel) {
+                const [i, j] = queue[front];
+                grid[i][j] = dist;
+
+                push(i - 1, j, dist + 1);
+                push(i + 1, j, dist + 1);
+                push(i, j - 1, dist + 1);
+                push(i, j + 1, dist + 1);
+
+                front++;
             }
+            dist++;
         }
     }
 }
